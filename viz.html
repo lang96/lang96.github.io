@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Max Verstappen's Wins by Country</title>
+    <style>
+        svg {
+            background-color: #f0f0f0;
+        }
+        path {
+            stroke: #fff;
+            stroke-width: 0.5px;
+        }
+    </style>
+</head>
+<body>
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script>
+    // Define your data (replace placeholders with actual data)
+    const max_scale = 10;
+
+    const data = [
+        { country: "Malaysia", wins: 10 },
+        { country: "United States of America", wins: 5 },
+        { country: "China", wins: 8 },
+        // Add more data for other countries...
+    ];
+
+    // Define the dimensions of the SVG container
+    const width = 960;
+    const height = 600;
+
+    // Create an SVG container
+    const svg = d3.select("body")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    // Define the projection for the map (you can choose a different one if desired)
+    const projection = d3.geoMercator()
+        .scale(130)
+        .translate([width / 2, height / 1.4]);
+
+    // Create a path generator
+    const path = d3.geoPath().projection(projection);
+
+    // Load the map data (replace "world-110m.json" with the path to your map data file)
+    d3.json("countries.geojson").then(function(mapData) {
+        // Draw the map
+        svg.selectAll("path")
+            .data(mapData.features)
+            .enter()
+            .append("path")
+            .attr("d", path)
+            .attr("fill", function(d) {
+                // Lookup the number of wins for the current country (replace "wins" with the actual attribute name in your data)
+                const countryData = data.find(country => country.country === d.properties.ADMIN);
+                if (countryData) {
+                    // Replace the color based on the number of wins (you can choose your own color scale)
+                    return d3.interpolateBlues(countryData.wins / max_scale); // Adjust the scale to fit your actual data range
+                } else {
+                    return "#ccc"; // Default color for countries without data
+                }
+            });
+    });
+</script>
+</body>
+</html>
